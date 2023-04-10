@@ -1,18 +1,27 @@
-import React from "react";
+import React, { useContext } from "react";
 import { View, Text, ScrollView, Image } from 'react-native'
+import MapView, { Marker } from 'react-native-maps'
 import { styles } from "./LocationDetailScreen.styles";
-import { COLORS } from "../../utils/theme";
 import { Ionicons } from '@expo/vector-icons';
-import MapView,{ Marker } from 'react-native-maps'
+import { COLORS } from "../../utils/theme";
+import { Link } from "@react-navigation/native";
+import { UserContext } from "../../contexts/UserContext";
 
 export const LocationDetailScreen = ({ route }) => {
     const { item } = route.params
+    const { currentUser } = useContext(UserContext)
+
     return (
         <ScrollView style={styles.container}>
             <View style={styles.imageContainer}>
                 <ScrollView horizontal pagingEnabled>
                     {item.images.map((image, idx) => (
-                        <Image key={idx} source={image} style={styles.image} resizeMode="cover"></Image>
+                        <Image
+                            key={idx}
+                            source={{ uri: `https://drive.google.com/uc?id=${image}` }}
+                            style={styles.image}
+                            resizeMode="cover"
+                        ></Image>
                     ))}
                 </ScrollView>
             </View>
@@ -24,6 +33,11 @@ export const LocationDetailScreen = ({ route }) => {
                     <Ionicons name='star' size={20} color={COLORS.primary} />
                     <Text style={styles.rating}>{item.rating}</Text>
                 </View>
+
+                {currentUser && <Link style={styles.webButton} to={{ screen: 'LocationDetailWeb', params: { url: item.url } }}>
+                    Ir a la web
+                </Link>}
+
                 <Text style={styles.description}>{item.description}</Text>
             </View>
             <MapView
@@ -38,7 +52,7 @@ export const LocationDetailScreen = ({ route }) => {
                 <Marker coordinate={{
                     latitude: item.locationCoordinates.latitude,
                     longitude: item.locationCoordinates.longitude
-                }}title={item.title}></Marker>
+                }} title={item.title}></Marker>
             </MapView>
         </ScrollView>
     )
